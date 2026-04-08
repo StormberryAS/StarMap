@@ -1,0 +1,16 @@
+StarMap – Interactive Night‑Sky Viewer
+
+Core Functionality:
+- Render a real‑time star chart for any location and date.
+- Highlight constellations, planets and deep‑sky objects.
+- Offline‑first: ship a static star catalogue (~5 MB) that the browser can query locally.
+
+Why it fits:
+- Re‑uses the astronomy‑calc library already used in MoonApp.
+- Shares the same dark‑mode glass‑morphism UI.
+- No external API calls required, preserving privacy.
+
+Potential UI Elements:
+- Glass‑morphism card showing the current sky.
+- Hover‑over tooltips for stars/constellations.
+- Simple CSS animation for the rotating sky.
