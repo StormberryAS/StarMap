@@ -19,6 +19,6 @@
 
 ## Brand Identity
 
-Designed with the Stormberry signature dark mode, glassmorphism UI, Inter font, and sovereign AI credit.
+Designed and built by **[Stormberry A.S.](https://stormberry.as)** with its signature dark mode, glassmorphism UI, Inter font, and sovereign AI credit.
 
 &copy; 2026 Stormberry A.S. All rights reserved.
