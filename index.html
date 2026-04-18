@@ -8,11 +8,8 @@
   <title>StarMap | Interactive Night-Sky Viewer</title>
   <meta name="description" content="View the real-time night sky above you. Offline-capable, privacy-first interactive starmap." />
 
-  <!-- Local Fonts: Inter -->
-  <!-- Assuming SunApp/fonts is copied or we can link local fonts via Google Fonts for demo or assume they exist. To be safe let's assume they are linked if copied, but they might not be. Wait, let's use system-fallback font if it's not present or assume they will copy the fonts dir. -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  </style>
+  <!-- Local Fonts: Inter (bundled, no external requests) -->
+  <link rel="stylesheet" href="fonts/inter/inter.css" />
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="style.css" />
