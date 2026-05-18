@@ -1,24 +1,26 @@
 # StarMap
 
-**StarMap** is a sovereign, privacy‑first Interactive Night‑Sky Viewer, part of the Stormberry A.S. application suite. It renders a real‑time star chart for your location natively in the browser without relying on external API calls for its data, preserving user privacy.
+Sovereign, privacy-first interactive night-sky viewer. StarMap renders a real-time star chart for your location natively in the browser, with no external API calls for its data.
+
+**Live:** [star.stormberry.as](https://star.stormberry.as)
 
 ## Features
+- **Offline-first**: embedded star catalogue, no server requests after initial load.
+- **Sovereign maths**: lightweight astronomy code converts Right Ascension and Declination to local Azimuth and Altitude.
+- **Real-time rendering**: HTML5 Canvas, stars up to a visible-magnitude limit.
+- **Privacy first**: fully on-device location selection and calculation.
 
-- **Offline-First**: Embedded star catalogue powered locally. No server requests are needed after the initial load.
-- **Sovereign Math**: Custom lightweight astronomy calculations convert Right Ascension and Declination to local Azimuth and Altitude.
-- **Real-Time Rendering**: HTML5 Canvas rendering of the night sky, featuring stars up to a visible magnitude limit.
-- **Privacy First**: Fully on-device location selection and calculation.
+## Architecture
+- **Vanilla HTML/CSS/JS**, no frameworks, no build step.
+- **Privacy first**, zero external requests after page load, zero tracking, zero cookies.
+- Stormberry dark-mode glassmorphism design system, Inter typography.
+- **Sovereign AI**, built and maintained using high-speed agentic workflows.
 
-## Development
+## Local development
+```bash
+python3 -m http.server 8000
+```
+Open `http://localhost:8000` in your browser.
 
-1. Start a local server:
-   ```bash
-   python3 -m http.server 8000
-   ```
-2. Open `http://localhost:8000` in your web browser.
-
-## Brand Identity
-
-Designed and built by **[Stormberry A.S.](https://stormberry.as)** with its signature dark mode, glassmorphism UI, Inter font, and sovereign AI credit.
-
-&copy; 2026 Stormberry A.S. All rights reserved.
+## Credits
+Built by [Stormberry AS](https://stormberry.as). Proudly powered by sovereign AI agents.
