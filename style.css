@@ -69,6 +69,16 @@ label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); lett
 .text-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(130,170,255,0.12); }
 input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(0.8) sepia(1) hue-rotate(180deg); cursor: pointer; }
 
+/* City selector — styled like .text-input with a custom chevron */
+select.text-input {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  cursor: pointer; padding-right: 2.4rem;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a9bca' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat; background-position: right 0.9rem center;
+}
+select.text-input option { background: #0a0e1c; color: var(--text-primary); }
+select.text-input optgroup { background: #0a0e1c; color: var(--text-secondary); font-weight: 700; }
+
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-sm); padding: 0.75rem 1.5rem; border: none; border-radius: var(--r-md); font-weight: 600; cursor: pointer; transition: transform 0.15s; }
 .btn svg { width: 18px; height: 18px; }
 .btn:active { transform: scale(0.97); }

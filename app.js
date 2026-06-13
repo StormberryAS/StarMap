@@ -15,6 +15,82 @@ const updateBtn = document.getElementById('update-btn');
 const gpsBtn = document.getElementById('gps-btn');
 const liveBtn = document.getElementById('live-btn');
 const liveText = document.getElementById('live-text');
+const citySelect = document.getElementById('city-select');
+
+// Local city catalogue (no network calls — keeps the app offline-capable and privacy-first).
+// Grouped by region; home region (Norway) first.
+const CITIES = [
+  { region: 'Norway', name: 'Oslo', lat: 59.9139, lon: 10.7522 },
+  { region: 'Norway', name: 'Bergen', lat: 60.3913, lon: 5.3221 },
+  { region: 'Norway', name: 'Trondheim', lat: 63.4305, lon: 10.3951 },
+  { region: 'Norway', name: 'Stavanger', lat: 58.9700, lon: 5.7331 },
+  { region: 'Norway', name: 'Kristiansand', lat: 58.1599, lon: 8.0182 },
+  { region: 'Norway', name: 'Tromsø', lat: 69.6492, lon: 18.9553 },
+  { region: 'Norway', name: 'Bodø', lat: 67.2804, lon: 14.4049 },
+
+  { region: 'Europe', name: 'London', lat: 51.5074, lon: -0.1278 },
+  { region: 'Europe', name: 'Paris', lat: 48.8566, lon: 2.3522 },
+  { region: 'Europe', name: 'Berlin', lat: 52.5200, lon: 13.4050 },
+  { region: 'Europe', name: 'Amsterdam', lat: 52.3676, lon: 4.9041 },
+  { region: 'Europe', name: 'Madrid', lat: 40.4168, lon: -3.7038 },
+  { region: 'Europe', name: 'Lisbon', lat: 38.7223, lon: -9.1393 },
+  { region: 'Europe', name: 'Rome', lat: 41.9028, lon: 12.4964 },
+  { region: 'Europe', name: 'Stockholm', lat: 59.3293, lon: 18.0686 },
+  { region: 'Europe', name: 'Copenhagen', lat: 55.6761, lon: 12.5683 },
+  { region: 'Europe', name: 'Helsinki', lat: 60.1699, lon: 24.9384 },
+  { region: 'Europe', name: 'Reykjavík', lat: 64.1466, lon: -21.9426 },
+  { region: 'Europe', name: 'Dublin', lat: 53.3498, lon: -6.2603 },
+  { region: 'Europe', name: 'Vienna', lat: 48.2082, lon: 16.3738 },
+  { region: 'Europe', name: 'Zürich', lat: 47.3769, lon: 8.5417 },
+  { region: 'Europe', name: 'Warsaw', lat: 52.2297, lon: 21.0122 },
+  { region: 'Europe', name: 'Athens', lat: 37.9838, lon: 23.7275 },
+  { region: 'Europe', name: 'Istanbul', lat: 41.0082, lon: 28.9784 },
+  { region: 'Europe', name: 'Moscow', lat: 55.7558, lon: 37.6173 },
+
+  { region: 'North America', name: 'New York', lat: 40.7128, lon: -74.0060 },
+  { region: 'North America', name: 'Chicago', lat: 41.8781, lon: -87.6298 },
+  { region: 'North America', name: 'Los Angeles', lat: 34.0522, lon: -118.2437 },
+  { region: 'North America', name: 'San Francisco', lat: 37.7749, lon: -122.4194 },
+  { region: 'North America', name: 'Miami', lat: 25.7617, lon: -80.1918 },
+  { region: 'North America', name: 'Toronto', lat: 43.6532, lon: -79.3832 },
+  { region: 'North America', name: 'Vancouver', lat: 49.2827, lon: -123.1207 },
+  { region: 'North America', name: 'Mexico City', lat: 19.4326, lon: -99.1332 },
+
+  { region: 'South America', name: 'São Paulo', lat: -23.5505, lon: -46.6333 },
+  { region: 'South America', name: 'Rio de Janeiro', lat: -22.9068, lon: -43.1729 },
+  { region: 'South America', name: 'Brasília', lat: -15.7939, lon: -47.8828 },
+  { region: 'South America', name: 'Buenos Aires', lat: -34.6037, lon: -58.3816 },
+  { region: 'South America', name: 'Santiago', lat: -33.4489, lon: -70.6693 },
+  { region: 'South America', name: 'Lima', lat: -12.0464, lon: -77.0428 },
+  { region: 'South America', name: 'Bogotá', lat: 4.7110, lon: -74.0721 },
+
+  { region: 'Africa & Middle East', name: 'Cairo', lat: 30.0444, lon: 31.2357 },
+  { region: 'Africa & Middle East', name: 'Casablanca', lat: 33.5731, lon: -7.5898 },
+  { region: 'Africa & Middle East', name: 'Lagos', lat: 6.5244, lon: 3.3792 },
+  { region: 'Africa & Middle East', name: 'Nairobi', lat: -1.2864, lon: 36.8172 },
+  { region: 'Africa & Middle East', name: 'Cape Town', lat: -33.9249, lon: 18.4241 },
+  { region: 'Africa & Middle East', name: 'Dubai', lat: 25.2048, lon: 55.2708 },
+  { region: 'Africa & Middle East', name: 'Tel Aviv', lat: 32.0853, lon: 34.7818 },
+  { region: 'Africa & Middle East', name: 'Riyadh', lat: 24.7136, lon: 46.6753 },
+
+  { region: 'Asia', name: 'Tokyo', lat: 35.6762, lon: 139.6503 },
+  { region: 'Asia', name: 'Seoul', lat: 37.5665, lon: 126.9780 },
+  { region: 'Asia', name: 'Beijing', lat: 39.9042, lon: 116.4074 },
+  { region: 'Asia', name: 'Shanghai', lat: 31.2304, lon: 121.4737 },
+  { region: 'Asia', name: 'Hong Kong', lat: 22.3193, lon: 114.1694 },
+  { region: 'Asia', name: 'Singapore', lat: 1.3521, lon: 103.8198 },
+  { region: 'Asia', name: 'Bangkok', lat: 13.7563, lon: 100.5018 },
+  { region: 'Asia', name: 'Jakarta', lat: -6.2088, lon: 106.8456 },
+  { region: 'Asia', name: 'Manila', lat: 14.5995, lon: 120.9842 },
+  { region: 'Asia', name: 'Mumbai', lat: 19.0760, lon: 72.8777 },
+  { region: 'Asia', name: 'Delhi', lat: 28.6139, lon: 77.2090 },
+
+  { region: 'Oceania', name: 'Sydney', lat: -33.8688, lon: 151.2093 },
+  { region: 'Oceania', name: 'Melbourne', lat: -37.8136, lon: 144.9631 },
+  { region: 'Oceania', name: 'Brisbane', lat: -27.4698, lon: 153.0251 },
+  { region: 'Oceania', name: 'Perth', lat: -31.9505, lon: 115.8605 },
+  { region: 'Oceania', name: 'Auckland', lat: -36.8485, lon: 174.7633 },
+];
 
 let constellationLabels = [];
 let isLive = false;
@@ -29,6 +105,13 @@ function init() {
   updateBtn.addEventListener('click', drawMap);
   gpsBtn.addEventListener('click', getGPS);
   liveBtn.addEventListener('click', toggleLive);
+
+  // City picker: fill the dropdown, then keep it in sync with the coordinate inputs.
+  populateCities();
+  citySelect.addEventListener('change', onCityChange);
+  latInput.addEventListener('input', syncCityToCoords);
+  lonInput.addEventListener('input', syncCityToCoords);
+  syncCityToCoords();
 
   // Resize canvas setup
   resizeCanvas();
@@ -60,6 +143,7 @@ function getGPS() {
         latInput.value = pos.coords.latitude.toFixed(4);
         lonInput.value = pos.coords.longitude.toFixed(4);
         gpsBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v2m0 16v2M4 12H2m20 0h-2m-3.2-6.8a8 8 0 1 0 0 13.6"></path></svg> GPS';
+        syncCityToCoords();
         drawMap();
       },
       (err) => {
@@ -73,6 +157,53 @@ function getGPS() {
   } else {
     alert("Geolocation is not supported by your browser.");
   }
+}
+
+function populateCities() {
+  const custom = document.createElement('option');
+  custom.value = '';
+  custom.textContent = 'Custom location';
+  citySelect.appendChild(custom);
+
+  const groups = {};
+  for (const c of CITIES) {
+    if (!groups[c.region]) {
+      const og = document.createElement('optgroup');
+      og.label = c.region;
+      groups[c.region] = og;
+      citySelect.appendChild(og);
+    }
+    const opt = document.createElement('option');
+    opt.value = `${c.lat},${c.lon}`;
+    opt.textContent = c.name;
+    groups[c.region].appendChild(opt);
+  }
+}
+
+function onCityChange() {
+  const val = citySelect.value;
+  if (!val) return; // "Custom location" — leave the inputs for manual entry
+  const [la, lo] = val.split(',');
+  latInput.value = la;
+  lonInput.value = lo;
+  drawMap();
+}
+
+// Reflect the current coordinates back onto the dropdown: select the matching city,
+// or fall back to "Custom location" (after GPS or manual editing).
+function syncCityToCoords() {
+  const la = parseFloat(latInput.value);
+  const lo = parseFloat(lonInput.value);
+  let matched = '';
+  if (!isNaN(la) && !isNaN(lo)) {
+    for (const c of CITIES) {
+      if (Math.abs(c.lat - la) < 0.01 && Math.abs(c.lon - lo) < 0.01) {
+        matched = `${c.lat},${c.lon}`;
+        break;
+      }
+    }
+  }
+  citySelect.value = matched;
 }
 
 function toggleLive() {
