@@ -1,4 +1,5 @@
 import { getJulianDate, getLocalSiderealTime, getAltAz, getSunPosition, getLunarPosition } from './astro-calc.js';
+import { CITIES } from './cities.js';
 
 let starsData = [];
 let drawnStars = [];
@@ -7,94 +8,42 @@ const ctx = canvas.getContext('2d');
 const tooltip = document.getElementById('star-tooltip');
 let devicePixelRatio = window.devicePixelRatio || 1;
 
-// Inputs
+// Location-picker tabs + panels
+const tabCity = document.getElementById('tab-city');
+const tabGps = document.getElementById('tab-gps');
+const tabDevice = document.getElementById('tab-device');
+const panelCity = document.getElementById('panel-city');
+const panelGps = document.getElementById('panel-gps');
+const panelDevice = document.getElementById('panel-device');
+
+// City search
+const citySearch = document.getElementById('city-search');
+const cityDropdown = document.getElementById('city-dropdown');
+const citySelected = document.getElementById('city-selected');
+const citySelectedText = document.getElementById('city-selected-text');
+const cityClearBtn = document.getElementById('city-clear-btn');
+
+// GPS coords (canonical state — drawMap reads these)
 const latInput = document.getElementById('lat-input');
 const lonInput = document.getElementById('lon-input');
+
+// My Device
+const getLocationBtn = document.getElementById('get-location-btn');
+const deviceCoords = document.getElementById('device-coords');
+
+// Date + actions
 const dateInput = document.getElementById('date-input');
 const updateBtn = document.getElementById('update-btn');
-const gpsBtn = document.getElementById('gps-btn');
 const liveBtn = document.getElementById('live-btn');
 const liveText = document.getElementById('live-text');
-const citySelect = document.getElementById('city-select');
-
-// Local city catalogue (no network calls — keeps the app offline-capable and privacy-first).
-// Grouped by region; home region (Norway) first.
-const CITIES = [
-  { region: 'Norway', name: 'Oslo', lat: 59.9139, lon: 10.7522 },
-  { region: 'Norway', name: 'Bergen', lat: 60.3913, lon: 5.3221 },
-  { region: 'Norway', name: 'Trondheim', lat: 63.4305, lon: 10.3951 },
-  { region: 'Norway', name: 'Stavanger', lat: 58.9700, lon: 5.7331 },
-  { region: 'Norway', name: 'Kristiansand', lat: 58.1599, lon: 8.0182 },
-  { region: 'Norway', name: 'Tromsø', lat: 69.6492, lon: 18.9553 },
-  { region: 'Norway', name: 'Bodø', lat: 67.2804, lon: 14.4049 },
-
-  { region: 'Europe', name: 'London', lat: 51.5074, lon: -0.1278 },
-  { region: 'Europe', name: 'Paris', lat: 48.8566, lon: 2.3522 },
-  { region: 'Europe', name: 'Berlin', lat: 52.5200, lon: 13.4050 },
-  { region: 'Europe', name: 'Amsterdam', lat: 52.3676, lon: 4.9041 },
-  { region: 'Europe', name: 'Madrid', lat: 40.4168, lon: -3.7038 },
-  { region: 'Europe', name: 'Lisbon', lat: 38.7223, lon: -9.1393 },
-  { region: 'Europe', name: 'Rome', lat: 41.9028, lon: 12.4964 },
-  { region: 'Europe', name: 'Stockholm', lat: 59.3293, lon: 18.0686 },
-  { region: 'Europe', name: 'Copenhagen', lat: 55.6761, lon: 12.5683 },
-  { region: 'Europe', name: 'Helsinki', lat: 60.1699, lon: 24.9384 },
-  { region: 'Europe', name: 'Reykjavík', lat: 64.1466, lon: -21.9426 },
-  { region: 'Europe', name: 'Dublin', lat: 53.3498, lon: -6.2603 },
-  { region: 'Europe', name: 'Vienna', lat: 48.2082, lon: 16.3738 },
-  { region: 'Europe', name: 'Zürich', lat: 47.3769, lon: 8.5417 },
-  { region: 'Europe', name: 'Warsaw', lat: 52.2297, lon: 21.0122 },
-  { region: 'Europe', name: 'Athens', lat: 37.9838, lon: 23.7275 },
-  { region: 'Europe', name: 'Istanbul', lat: 41.0082, lon: 28.9784 },
-  { region: 'Europe', name: 'Moscow', lat: 55.7558, lon: 37.6173 },
-
-  { region: 'North America', name: 'New York', lat: 40.7128, lon: -74.0060 },
-  { region: 'North America', name: 'Chicago', lat: 41.8781, lon: -87.6298 },
-  { region: 'North America', name: 'Los Angeles', lat: 34.0522, lon: -118.2437 },
-  { region: 'North America', name: 'San Francisco', lat: 37.7749, lon: -122.4194 },
-  { region: 'North America', name: 'Miami', lat: 25.7617, lon: -80.1918 },
-  { region: 'North America', name: 'Toronto', lat: 43.6532, lon: -79.3832 },
-  { region: 'North America', name: 'Vancouver', lat: 49.2827, lon: -123.1207 },
-  { region: 'North America', name: 'Mexico City', lat: 19.4326, lon: -99.1332 },
-
-  { region: 'South America', name: 'São Paulo', lat: -23.5505, lon: -46.6333 },
-  { region: 'South America', name: 'Rio de Janeiro', lat: -22.9068, lon: -43.1729 },
-  { region: 'South America', name: 'Brasília', lat: -15.7939, lon: -47.8828 },
-  { region: 'South America', name: 'Buenos Aires', lat: -34.6037, lon: -58.3816 },
-  { region: 'South America', name: 'Santiago', lat: -33.4489, lon: -70.6693 },
-  { region: 'South America', name: 'Lima', lat: -12.0464, lon: -77.0428 },
-  { region: 'South America', name: 'Bogotá', lat: 4.7110, lon: -74.0721 },
-
-  { region: 'Africa & Middle East', name: 'Cairo', lat: 30.0444, lon: 31.2357 },
-  { region: 'Africa & Middle East', name: 'Casablanca', lat: 33.5731, lon: -7.5898 },
-  { region: 'Africa & Middle East', name: 'Lagos', lat: 6.5244, lon: 3.3792 },
-  { region: 'Africa & Middle East', name: 'Nairobi', lat: -1.2864, lon: 36.8172 },
-  { region: 'Africa & Middle East', name: 'Cape Town', lat: -33.9249, lon: 18.4241 },
-  { region: 'Africa & Middle East', name: 'Dubai', lat: 25.2048, lon: 55.2708 },
-  { region: 'Africa & Middle East', name: 'Tel Aviv', lat: 32.0853, lon: 34.7818 },
-  { region: 'Africa & Middle East', name: 'Riyadh', lat: 24.7136, lon: 46.6753 },
-
-  { region: 'Asia', name: 'Tokyo', lat: 35.6762, lon: 139.6503 },
-  { region: 'Asia', name: 'Seoul', lat: 37.5665, lon: 126.9780 },
-  { region: 'Asia', name: 'Beijing', lat: 39.9042, lon: 116.4074 },
-  { region: 'Asia', name: 'Shanghai', lat: 31.2304, lon: 121.4737 },
-  { region: 'Asia', name: 'Hong Kong', lat: 22.3193, lon: 114.1694 },
-  { region: 'Asia', name: 'Singapore', lat: 1.3521, lon: 103.8198 },
-  { region: 'Asia', name: 'Bangkok', lat: 13.7563, lon: 100.5018 },
-  { region: 'Asia', name: 'Jakarta', lat: -6.2088, lon: 106.8456 },
-  { region: 'Asia', name: 'Manila', lat: 14.5995, lon: 120.9842 },
-  { region: 'Asia', name: 'Mumbai', lat: 19.0760, lon: 72.8777 },
-  { region: 'Asia', name: 'Delhi', lat: 28.6139, lon: 77.2090 },
-
-  { region: 'Oceania', name: 'Sydney', lat: -33.8688, lon: 151.2093 },
-  { region: 'Oceania', name: 'Melbourne', lat: -37.8136, lon: 144.9631 },
-  { region: 'Oceania', name: 'Brisbane', lat: -27.4698, lon: 153.0251 },
-  { region: 'Oceania', name: 'Perth', lat: -31.9505, lon: 115.8605 },
-  { region: 'Oceania', name: 'Auckland', lat: -36.8485, lon: 174.7633 },
-];
+const errorMsg = document.getElementById('error-msg');
 
 let constellationLabels = [];
 let isLive = false;
 let animationFrameId = null;
+
+// Default GPS coordinates icon (restored on the My Device button between requests)
+const PIN_SVG = '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>';
 
 function init() {
   // Set default datetime to now
@@ -102,16 +51,28 @@ function init() {
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   dateInput.value = now.toISOString().slice(0, 16);
 
-  updateBtn.addEventListener('click', drawMap);
-  gpsBtn.addEventListener('click', getGPS);
+  // Tab switching
+  [tabCity, tabGps, tabDevice].forEach((btn) => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // City search
+  citySearch.addEventListener('input', onCityInput);
+  citySearch.addEventListener('keydown', onCityKeydown);
+  cityClearBtn.addEventListener('click', clearCity);
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-wrapper')) closeDropdown();
+  });
+
+  // My Device geolocation
+  getLocationBtn.addEventListener('click', requestDeviceLocation);
+
+  // Actions
+  updateBtn.addEventListener('click', () => { clearError(); drawMap(); });
   liveBtn.addEventListener('click', toggleLive);
 
-  // City picker: fill the dropdown, then keep it in sync with the coordinate inputs.
-  populateCities();
-  citySelect.addEventListener('change', onCityChange);
-  latInput.addEventListener('input', syncCityToCoords);
-  lonInput.addEventListener('input', syncCityToCoords);
-  syncCityToCoords();
+  // Reflect the default coordinates onto the City Search badge, if they match a city.
+  syncInitialCity();
 
   // Resize canvas setup
   resizeCanvas();
@@ -135,75 +96,181 @@ async function loadData() {
   }
 }
 
-function getGPS() {
-  if (navigator.geolocation) {
-    gpsBtn.innerHTML = 'Locating...';
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        latInput.value = pos.coords.latitude.toFixed(4);
-        lonInput.value = pos.coords.longitude.toFixed(4);
-        gpsBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v2m0 16v2M4 12H2m20 0h-2m-3.2-6.8a8 8 0 1 0 0 13.6"></path></svg> GPS';
-        syncCityToCoords();
-        drawMap();
-      },
-      (err) => {
-        console.warn('Geolocation error:', err);
-        gpsBtn.innerHTML = 'Error';
-        setTimeout(() => {
-          gpsBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v2m0 16v2M4 12H2m20 0h-2m-3.2-6.8a8 8 0 1 0 0 13.6"></path></svg> GPS';
-        }, 2000);
-      }
-    );
-  } else {
-    alert("Geolocation is not supported by your browser.");
-  }
+/* ── TAB SWITCHING ──────────────────────────────────────────── */
+function switchTab(tab) {
+  clearError();
+  [tabCity, tabGps, tabDevice].forEach((btn) => {
+    const isActive = btn.dataset.tab === tab;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive);
+  });
+  panelCity.hidden = (tab !== 'city');
+  panelGps.hidden = (tab !== 'gps');
+  panelDevice.hidden = (tab !== 'device');
 }
 
-function populateCities() {
-  const custom = document.createElement('option');
-  custom.value = '';
-  custom.textContent = 'Custom location';
-  citySelect.appendChild(custom);
+/* ── CITY SEARCH & DROPDOWN ─────────────────────────────────── */
+let highlightIndex = -1;
 
-  const groups = {};
-  for (const c of CITIES) {
-    if (!groups[c.region]) {
-      const og = document.createElement('optgroup');
-      og.label = c.region;
-      groups[c.region] = og;
-      citySelect.appendChild(og);
+function onCityInput() {
+  const query = citySearch.value.trim().toLowerCase();
+  highlightIndex = -1;
+
+  if (query.length < 1) {
+    closeDropdown();
+    return;
+  }
+
+  // Match on city name or country; prioritise name-starts-with, then name, then country.
+  const matches = CITIES
+    .filter((c) => c.name.toLowerCase().includes(query) || c.country.toLowerCase().includes(query))
+    .sort((a, b) => rank(a, query) - rank(b, query))
+    .slice(0, 8);
+
+  if (matches.length === 0) {
+    closeDropdown();
+    return;
+  }
+
+  cityDropdown.innerHTML = '';
+  matches.forEach((city, i) => {
+    const li = document.createElement('li');
+    li.setAttribute('role', 'option');
+    li.setAttribute('aria-selected', 'false');
+    li.dataset.index = i;
+    li.innerHTML = `<span class="city-name"></span><span class="city-country"></span>`;
+    li.querySelector('.city-name').textContent = city.name;
+    li.querySelector('.city-country').textContent = city.country;
+    li.addEventListener('click', () => selectCity(city));
+    li.addEventListener('mouseenter', () => setHighlight(i));
+    cityDropdown.appendChild(li);
+  });
+
+  cityDropdown._matches = matches;
+  cityDropdown.removeAttribute('hidden');
+  citySearch.setAttribute('aria-expanded', 'true');
+}
+
+// Lower rank sorts first: name starts-with (0) < name contains (1) < country only (2).
+function rank(city, query) {
+  const name = city.name.toLowerCase();
+  if (name.startsWith(query)) return 0;
+  if (name.includes(query)) return 1;
+  return 2;
+}
+
+function onCityKeydown(e) {
+  const items = cityDropdown.querySelectorAll('li');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    setHighlight(Math.min(highlightIndex + 1, items.length - 1));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    setHighlight(Math.max(highlightIndex - 1, 0));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (highlightIndex >= 0 && cityDropdown._matches) {
+      selectCity(cityDropdown._matches[highlightIndex]);
     }
-    const opt = document.createElement('option');
-    opt.value = `${c.lat},${c.lon}`;
-    opt.textContent = c.name;
-    groups[c.region].appendChild(opt);
+  } else if (e.key === 'Escape') {
+    closeDropdown();
   }
 }
 
-function onCityChange() {
-  const val = citySelect.value;
-  if (!val) return; // "Custom location" — leave the inputs for manual entry
-  const [la, lo] = val.split(',');
-  latInput.value = la;
-  lonInput.value = lo;
+function setHighlight(index) {
+  const items = cityDropdown.querySelectorAll('li');
+  items.forEach((li, i) => li.classList.toggle('highlighted', i === index));
+  highlightIndex = index;
+}
+
+function selectCity(city) {
+  latInput.value = city.lat;
+  lonInput.value = city.lon;
+  citySearch.value = '';
+  closeDropdown();
+
+  citySelectedText.textContent = `${city.name}, ${city.country}`;
+  citySelected.removeAttribute('hidden');
+
+  clearError();
   drawMap();
 }
 
-// Reflect the current coordinates back onto the dropdown: select the matching city,
-// or fall back to "Custom location" (after GPS or manual editing).
-function syncCityToCoords() {
+function clearCity() {
+  citySelected.setAttribute('hidden', '');
+  citySearch.value = '';
+  citySearch.focus();
+}
+
+function closeDropdown() {
+  cityDropdown.setAttribute('hidden', '');
+  citySearch.setAttribute('aria-expanded', 'false');
+  cityDropdown.innerHTML = '';
+}
+
+// On load, show the badge for the default coordinates if they match a known city.
+function syncInitialCity() {
   const la = parseFloat(latInput.value);
   const lo = parseFloat(lonInput.value);
-  let matched = '';
-  if (!isNaN(la) && !isNaN(lo)) {
-    for (const c of CITIES) {
-      if (Math.abs(c.lat - la) < 0.01 && Math.abs(c.lon - lo) < 0.01) {
-        matched = `${c.lat},${c.lon}`;
-        break;
-      }
-    }
+  if (isNaN(la) || isNaN(lo)) return;
+  const match = CITIES.find((c) => Math.abs(c.lat - la) < 0.05 && Math.abs(c.lon - lo) < 0.05);
+  if (match) {
+    citySelectedText.textContent = `${match.name}, ${match.country}`;
+    citySelected.removeAttribute('hidden');
   }
-  citySelect.value = matched;
+}
+
+/* ── MY DEVICE GEOLOCATION ──────────────────────────────────── */
+function requestDeviceLocation() {
+  clearError();
+  if (!('geolocation' in navigator)) {
+    showError('Geolocation is not supported by this browser.');
+    return;
+  }
+
+  getLocationBtn.disabled = true;
+  getLocationBtn.innerHTML = 'Requesting…';
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      latInput.value = lat.toFixed(4);
+      lonInput.value = lon.toFixed(4);
+
+      deviceCoords.textContent = `📍 ${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+      deviceCoords.removeAttribute('hidden');
+
+      getLocationBtn.disabled = false;
+      getLocationBtn.innerHTML = `${PIN_SVG} Location Retrieved ✓`;
+
+      // A device fix usually won't match a catalogue city — clear the badge.
+      citySelected.setAttribute('hidden', '');
+      drawMap();
+    },
+    (err) => {
+      getLocationBtn.disabled = false;
+      getLocationBtn.innerHTML = `${PIN_SVG} Get My Location`;
+      const messages = {
+        1: 'Location access was denied. Please allow location in browser settings.',
+        2: 'Location unavailable (device signal issue).',
+        3: 'Location request timed out.',
+      };
+      showError(messages[err.code] || 'Unknown geolocation error.');
+    },
+    { timeout: 10000, maximumAge: 60000 }
+  );
+}
+
+/* ── ERROR MESSAGING ────────────────────────────────────────── */
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.removeAttribute('hidden');
+}
+
+function clearError() {
+  errorMsg.setAttribute('hidden', '');
+  errorMsg.textContent = '';
 }
 
 function toggleLive() {
@@ -338,7 +405,7 @@ function drawMap() {
   ctx.fillStyle = 'rgba(130, 170, 255, 0.4)';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  
+
   for (let cl of constellationLabels) {
     const { alt, az } = getAltAz(cl.r, cl.d, lat, lst);
     if (alt < 0) continue;
@@ -353,12 +420,12 @@ function drawMap() {
   const drawBody = (pos, color, sizeMultiplier, label) => {
     const { alt, az } = getAltAz(pos.r, pos.d, lat, lst);
     if (alt < 0) return;
-    
+
     const rB = ((90 - alt) / 90) * radius;
     const azRadB = az * Math.PI / 180.0;
     const xB = cx - rB * Math.sin(azRadB);
     const yB = cy - rB * Math.cos(azRadB);
-    
+
     ctx.shadowBlur = 10 * devicePixelRatio;
     ctx.shadowColor = color;
     ctx.fillStyle = color;
@@ -366,15 +433,15 @@ function drawMap() {
     ctx.arc(xB, yB, 5 * devicePixelRatio * sizeMultiplier, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
-    
+
     ctx.font = `600 ${9 * devicePixelRatio}px "Inter", sans-serif`;
     ctx.fillStyle = color;
     ctx.fillText(label, xB, yB + 14 * devicePixelRatio);
   };
-  
+
   const sunPos = getSunPosition(jd);
   drawBody(sunPos, '#ffd700', 1.5, 'SUN');
-  
+
   const moonPos = getLunarPosition(jd);
   drawBody(moonPos, '#e0e8ff', 1.2, 'MOON');
 }

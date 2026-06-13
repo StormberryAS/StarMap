@@ -67,34 +67,73 @@
   <main class="main-container">
 
     <section class="card input-card" aria-label="Location and date inputs">
-      <div class="field-group">
-        <label for="city-select">City</label>
-        <select id="city-select" class="text-input" aria-label="Pick a city to set coordinates"></select>
+      <!-- LOCATION METHOD TABS -->
+      <div class="tab-group" role="tablist" aria-label="Location input method">
+        <button id="tab-city" class="tab active" role="tab" aria-selected="true" aria-controls="panel-city" data-tab="city" type="button">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2a6 6 0 00-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 00-6-6zm0 8a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          City Search
+        </button>
+        <button id="tab-gps" class="tab" role="tab" aria-selected="false" aria-controls="panel-gps" data-tab="gps" type="button">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm0-9a3 3 0 100 6 3 3 0 000-6z"/></svg>
+          GPS Coords
+        </button>
+        <button id="tab-device" class="tab" role="tab" aria-selected="false" aria-controls="panel-device" data-tab="device" type="button">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M7 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2V3a1 1 0 00-1-1H7zm0 2h6v1H7V4zM4 8h12v8H4V8zm6 1a1 1 0 110 2 1 1 0 010-2z"/></svg>
+          My Device
+        </button>
       </div>
 
-      <div class="field-row">
+      <!-- Panel: City Search -->
+      <div id="panel-city" class="tab-panel" role="tabpanel" aria-labelledby="tab-city">
         <div class="field-group">
-          <label for="lat-input">Latitude (−90 to 90)</label>
-          <input type="number" id="lat-input" class="text-input" value="59.9139" min="-90" max="90" step="any" />
+          <label for="city-search">Search city or country</label>
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="search" id="city-search" class="search-input" placeholder="e.g. Oslo, Tokyo, São Paulo…" autocomplete="off" spellcheck="false" aria-autocomplete="list" aria-controls="city-dropdown" aria-expanded="false" />
+            <ul id="city-dropdown" class="dropdown" role="listbox" aria-label="City suggestions" hidden></ul>
+          </div>
+          <div id="city-selected" class="selected-city" hidden>
+            <span id="city-selected-text"></span>
+            <button id="city-clear-btn" class="clear-btn" aria-label="Clear city selection" type="button">×</button>
+          </div>
+          <div class="city-missing-note">
+            Didn't find your city? <a href="mailto:starmap@stormberry.as?subject=Please%20add%20my%20city%20to%20StarMap&body=Hi%2C%20I%20didn't%20find%20my%20city%20%5Benter%20city%20and%20country%20name%20here%5D.%20Please%20add%20it%20to%20your%20list.">Contact us</a>.
+          </div>
         </div>
-        <div class="field-group">
-          <label for="lon-input">Longitude (−180 to 180)</label>
-          <input type="number" id="lon-input" class="text-input" value="10.7522" min="-180" max="180" step="any" />
+      </div>
+
+      <!-- Panel: GPS Coords -->
+      <div id="panel-gps" class="tab-panel" role="tabpanel" aria-labelledby="tab-gps" hidden>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="lat-input">Latitude (−90 to 90)</label>
+            <input type="number" id="lat-input" class="text-input" value="59.9139" min="-90" max="90" step="any" />
+          </div>
+          <div class="field-group">
+            <label for="lon-input">Longitude (−180 to 180)</label>
+            <input type="number" id="lon-input" class="text-input" value="10.7522" min="-180" max="180" step="any" />
+          </div>
         </div>
       </div>
       
-      <div class="field-row">
-        <div class="field-group">
-            <label for="date-input">Observation Time (Local)</label>
-            <input type="datetime-local" id="date-input" class="text-input" />
+      <!-- Panel: My Device -->
+      <div id="panel-device" class="tab-panel" role="tabpanel" aria-labelledby="tab-device" hidden>
+        <div class="device-panel">
+          <p class="device-hint">Grant location access so we can read your GPS coordinates.</p>
+          <button id="get-location-btn" class="btn btn-secondary" type="button">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+            Get My Location
+          </button>
+          <p id="device-coords" class="device-coords" hidden></p>
         </div>
-        <div class="field-group tools-group">
-            <label>&nbsp;</label>
-            <button id="gps-btn" class="btn btn-secondary" title="Use Device GPS" type="button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v2m0 16v2M4 12H2m20 0h-2m-3.2-6.8a8 8 0 1 0 0 13.6"></path></svg>
-              GPS
-            </button>
-        </div>
+      </div>
+
+      <!-- Observation time — always visible regardless of active tab -->
+      <div class="field-group date-field">
+        <label for="date-input">Observation Time (Local)</label>
+        <input type="datetime-local" id="date-input" class="text-input" />
       </div>
 
       <div class="action-row">
@@ -107,6 +146,8 @@
           <span id="live-text">Live View: OFF</span>
         </button>
       </div>
+
+      <p id="error-msg" class="error-msg" role="alert" hidden></p>
     </section>
 
     <!-- MAP CONTAINER -->
