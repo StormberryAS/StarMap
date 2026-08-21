@@ -125,7 +125,7 @@ function onCityInput() {
   // Match on city name or country; prioritise name-starts-with, then name, then country.
   const qf = foldQuery(query);
   const matches = CITIES
-    .filter((c) => c.fold.includes(qf) || c.cfold.includes(qf))
+    .filter((c) => c.fold.includes(qf) || c.alt.includes(qf) || c.cfold.includes(qf))
     .sort((a, b) => rank(a, query) - rank(b, query))
     .slice(0, 8);
 
