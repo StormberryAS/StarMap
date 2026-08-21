@@ -1,5 +1,6 @@
 import { getJulianDate, getLocalSiderealTime, getAltAz, getSunPosition, getLunarPosition } from './astro-calc.js';
-import { CITIES } from './cities.js';
+// CITIES comes from the shared cities.js, loaded as a classic script by
+// index.html before this module. Regenerate with GitHub/update_cities.py.
 
 let starsData = [];
 let drawnStars = [];
@@ -122,8 +123,9 @@ function onCityInput() {
   }
 
   // Match on city name or country; prioritise name-starts-with, then name, then country.
+  const qf = foldQuery(query);
   const matches = CITIES
-    .filter((c) => c.name.toLowerCase().includes(query) || c.country.toLowerCase().includes(query))
+    .filter((c) => c.fold.includes(qf) || c.cfold.includes(qf))
     .sort((a, b) => rank(a, query) - rank(b, query))
     .slice(0, 8);
 
