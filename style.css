@@ -67,6 +67,13 @@ body {
 label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.04em; text-transform: uppercase; }
 .text-input { width: 100%; padding: 0.65rem 1rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: var(--r-md); color: var(--text-primary); outline: none; }
 .text-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(130,170,255,0.12); }
+/* Inline message under a coordinate field when it cannot be read */
+.field-error { color: #ff7a8a; font-size: 0.8rem; line-height: 1.4; }
+.field-error[hidden] { display: none; }
+.text-input[aria-invalid="true"] { border-color: rgba(255,122,138,0.6); }
+/* Echo of the coordinates actually used, e.g. "Using 60.39, 5.32" */
+.field-note { color: var(--text-secondary); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.field-note[hidden] { display: none; }
 input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(0.8) sepia(1) hue-rotate(180deg); cursor: pointer; }
 
 /* ── LOCATION METHOD TABS ───────────────────────────────────── */
@@ -106,17 +113,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert
 .city-missing-note a { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; transition: color 0.15s; }
 .city-missing-note a:hover { color: var(--accent-blue); }
 
-/* ── MY DEVICE PANEL ────────────────────────────────────────── */
-.device-panel { display: flex; flex-direction: column; align-items: center; gap: var(--sp-md); padding: var(--sp-md) 0; }
-.device-panel .btn { width: auto; }
-.device-hint { color: var(--text-secondary); font-size: 0.88rem; text-align: center; }
-.device-coords { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-blue); text-align: center; background: rgba(130,170,255,0.08); border: 1px solid rgba(130,170,255,0.2); border-radius: var(--r-sm); padding: var(--sp-sm) var(--sp-md); width: 100%; }
-.device-coords[hidden] { display: none; }
-
-/* ── OBSERVATION TIME + ERROR ───────────────────────────────── */
+/* ── OBSERVATION TIME ───────────────────────────────────────── */
 .date-field { margin-top: var(--sp-lg); }
-.error-msg { margin-top: var(--sp-sm); color: #ff7a8a; font-size: 0.85rem; background: rgba(255,122,138,0.08); border: 1px solid rgba(255,122,138,0.25); border-radius: var(--r-sm); padding: var(--sp-sm) var(--sp-md); }
-.error-msg[hidden] { display: none; }
 
 @media (max-width: 480px) {
   .tab { font-size: 0.72rem; padding: var(--sp-sm) 0.2rem; }
@@ -127,8 +125,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert
 .btn svg { width: 18px; height: 18px; }
 .btn:active { transform: scale(0.97); }
 .btn-primary { width: 100%; background: var(--grad-primary); color: #111; box-shadow: 0 4px 16px rgba(130,170,255,0.2); }
-.btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--border); transition: background 0.2s; }
-.btn-secondary:hover { background: rgba(255,255,255,0.15); }
 .btn-live { background: rgba(130,170,255,0.1); color: var(--accent-blue); border: 1px solid rgba(130,170,255,0.3); transition: all 0.2s; }
 .btn-live.active { background: rgba(130,170,255,0.25); box-shadow: 0 0 12px rgba(130,170,255,0.4); text-shadow: 0 0 8px rgba(130,170,255,0.8); }
 

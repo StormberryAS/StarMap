@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="fonts/inter/inter.css?v=868d674e" />
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="stylesheet" href="style.css?v=e3c6dbdf" />
+  <link rel="stylesheet" href="style.css?v=c1eae05d" />
   <link rel="canonical" href="https://star.stormberry.as/" />
   <link rel="preload" href="fonts/inter/InterVariable.woff2" as="font" type="font/woff2" crossorigin />
   <meta property="og:title" content="StarMap | Interactive Night-Sky Viewer" />
@@ -128,10 +128,6 @@
           <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm0-9a3 3 0 100 6 3 3 0 000-6z"/></svg>
           GPS Coords
         </button>
-        <button id="tab-device" class="tab" role="tab" aria-selected="false" aria-controls="panel-device" data-tab="device" type="button">
-          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M7 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2V3a1 1 0 00-1-1H7zm0 2h6v1H7V4zM4 8h12v8H4V8zm6 1a1 1 0 110 2 1 1 0 010-2z"/></svg>
-          My Device
-        </button>
       </div>
 
       <!-- Panel: City Search -->
@@ -155,30 +151,25 @@
         </div>
       </div>
 
-      <!-- Panel: GPS Coords -->
+      <!-- Panel: GPS Coords
+           Plain text fields, not type="number": a number field lets the browser
+           turn "6,5" into 65 before any script sees it. No inputmode either,
+           because iPhone decimal keypads have no minus key and western and
+           southern coordinates need one. app.js parses with parseDecimal(). -->
       <div id="panel-gps" class="tab-panel" role="tabpanel" aria-labelledby="tab-gps" hidden>
         <div class="field-row">
           <div class="field-group">
             <label for="lat-input">Latitude (−90 to 90)</label>
-            <input type="number" id="lat-input" class="text-input" value="59.9139" min="-90" max="90" step="any" />
+            <input type="text" id="lat-input" class="text-input" value="59.9139" autocomplete="off" spellcheck="false" aria-describedby="lat-error gps-echo" />
+            <p id="lat-error" class="field-error" hidden></p>
           </div>
           <div class="field-group">
             <label for="lon-input">Longitude (−180 to 180)</label>
-            <input type="number" id="lon-input" class="text-input" value="10.7522" min="-180" max="180" step="any" />
+            <input type="text" id="lon-input" class="text-input" value="10.7522" autocomplete="off" spellcheck="false" aria-describedby="lon-error gps-echo" />
+            <p id="lon-error" class="field-error" hidden></p>
           </div>
         </div>
-      </div>
-      
-      <!-- Panel: My Device -->
-      <div id="panel-device" class="tab-panel" role="tabpanel" aria-labelledby="tab-device" hidden>
-        <div class="device-panel">
-          <p class="device-hint">Grant location access so we can read your GPS coordinates.</p>
-          <button id="get-location-btn" class="btn btn-secondary" type="button">
-            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-            Get My Location
-          </button>
-          <p id="device-coords" class="device-coords" hidden></p>
-        </div>
+        <p id="gps-echo" class="field-note" aria-live="polite" hidden></p>
       </div>
 
       <!-- Observation time — always visible regardless of active tab -->
@@ -197,8 +188,6 @@
           <span id="live-text">Live View: OFF</span>
         </button>
       </div>
-
-      <p id="error-msg" class="error-msg" role="alert" hidden></p>
     </section>
 
     <!-- MAP CONTAINER -->
@@ -439,6 +428,6 @@
   </footer>
 
   <script src="cities.js?v=2f08782c"></script>
-  <script type="module" src="app.js?v=2d7676e8"></script>
+  <script type="module" src="app.js?v=238034c3"></script>
 </body>
 </html>
