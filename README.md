@@ -13,7 +13,10 @@ Sovereign, privacy-first interactive night-sky viewer. StarMap renders a real-ti
 - **Privacy first**: the page never asks for the device's location. A place comes from city search or from typed coordinates, and every calculation runs in the browser.
 
 ## Architecture
-- **Vanilla HTML/CSS/JS**, no frameworks, no build step.
+- **Vanilla HTML and CSS, TypeScript**, no frameworks.
+- **TypeScript source in `ts/`, compiled JavaScript committed.** `ts/app.ts` compiles to `app.js` and `ts/astro-calc.ts` to `astro-calc.js`, at the same paths the page has always loaded: `app.js` is an ES module that imports the sky maths from `./astro-calc.js`. The compiled files are committed because GitHub Pages serves the repository as it is, with no build step of its own; `.gitattributes` marks them as generated. Edit the TypeScript, never the `.js`.
+- **Generated files kept as they are.** `cities.js` is the shared Stormberry Labs city catalogue, written by SunApp's `update_cities.py`; `ts/cities.d.ts` types it for the TypeScript. `stars.json`, the star catalogue the page loads, is written by `fetch_stars.py`. Neither is edited by hand.
+- **Build:** `npm run build` (`tools/build-ts.sh`) installs the pinned compiler (`npm ci`), compiles, then runs `bump_assets.py` to restamp the `?v=` cache stamps. `npm run check` changes nothing and fails when the committed JavaScript is not what the TypeScript compiles to. `npm test` runs the tests in `tests/` with the test runner built into Node 24. The published app has no runtime dependencies.
 - **Privacy first**, zero external requests after page load, zero tracking, zero cookies.
 - Stormberry dark-mode glassmorphism design system, Inter typography.
 - **Sovereign AI**, built and maintained using high-speed agentic workflows.

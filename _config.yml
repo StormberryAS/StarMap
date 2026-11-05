@@ -16,9 +16,25 @@
 #
 # astro-calc.js and stars.json are NOT excluded: app.js imports the first as an ES
 # module and fetches the second at runtime, so hiding either would break the map.
+#
+# TypeScript (5 November 2026): the app's code is written in ts/ and compiled by tools/build-ts.sh
+# into app.js and astro-calc.js, which ARE published (GitHub Pages has no build step, so the
+# compiled files are committed), as is the generated cities.js. The sources (ts/, with the
+# cities.js declarations), the compiler's settings (tsconfig.json), the build script and the tests
+# (tools/, tests/), the package files and .npmrc, and node_modules/, where npm ci puts TypeScript,
+# are excluded. (.npmrc and .gitattributes are dot files, which Jekyll never publishes; .npmrc is
+# listed anyway, as in AstroQuiz and the others.)
 exclude:
   - DISCLAIMER.md
   - LICENSE
   - README.md
   - bump_assets.py
   - fetch_stars.py
+  - tools/
+  - tests/
+  - package.json
+  - package-lock.json
+  - .npmrc
+  - node_modules/
+  - tsconfig.json
+  - ts/
