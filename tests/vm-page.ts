@@ -163,7 +163,7 @@ export interface PageState {
 export interface Page {
   state(): PageState;
   /** Every call of the canvas so far, and every console line. */
-  totals(): { calls: number; sha256: string; console: string[]; fetched: string[] };
+  totals(): { calls: number; sha256: string; console: string[]; fetched: string[]; fontLoads: string[] };
   /** Types text into the city search (replacing what is there), as the input event delivers it. */
   typeCity(text: string): void;
   /** A key press in the city search; true when the page prevented the default. */
@@ -238,6 +238,7 @@ export async function loadPage(root: URL, now: number): Promise<Page> {
   const consoleLines: string[] = [];
   const fetched: string[] = [];
   const pending: Promise<unknown>[] = [];
+  const fontLoads: string[] = [];
   const on = (map: Map<string, Listener[]>) => (type: string, fn: Listener): void => { map.set(type, [...(map.get(type) ?? []), fn]); };
 
   const sandbox = {
@@ -253,6 +254,9 @@ export async function loadPage(root: URL, now: number): Promise<Page> {
       getElementById: (id: string): StubElement | null => els.get(id) ?? null,
       addEventListener: on(docListeners),
       createElement: (tag: string): StubElement => new StubElement(page, tag),
+      // The page waits for Inter before its first drawing (6 November 2026); here the face is
+      // always there at once, and each request is recorded.
+      fonts: { load: (font: string): Promise<unknown[]> => { fontLoads.push(font); const p = Promise.resolve([]); pending.push(p); return p; } },
     },
     requestAnimationFrame: (fn: () => void): number => { frames.set(++frameSeq, fn); return frameSeq; },
     cancelAnimationFrame: (id: number): void => { frames.delete(Number(id)); },
@@ -322,7 +326,7 @@ export async function loadPage(root: URL, now: number): Promise<Page> {
       focus: page.focus,
       frame: lastFrame(),
     }),
-    totals: () => ({ calls: canvas.log.length, sha256: sha(canvas.log), console: [...consoleLines], fetched: [...fetched] }),
+    totals: () => ({ calls: canvas.log.length, sha256: sha(canvas.log), console: [...consoleLines], fetched: [...fetched], fontLoads: [...fontLoads] }),
     typeCity: (text) => { search.value = text; search.fire('input'); },
     key: (key) => search.fire('keydown', { key }).defaultPrevented,
     clickRow: (i) => { const li = dropdown.children[i]; if (!li) throw new Error(`no row ${i}`); const e = li.fire('click'); fireAll(docListeners, 'click', e); },

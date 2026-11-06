@@ -79,6 +79,7 @@ async function loadData() {
     try {
         const res = await fetch('stars.json');
         const data = await res.json();
+        await document.fonts.load('600 10px "InterVariable"').catch(() => undefined);
         starsData = data;
         computeConstellations();
         drawMap();
@@ -368,7 +369,7 @@ function drawMap() {
         }
         drawnStars.push({ x, y, size, data: s });
     }
-    ctx.font = `600 ${10 * devicePixelRatio}px "Inter", sans-serif`;
+    ctx.font = `600 ${10 * devicePixelRatio}px "InterVariable", "Inter", sans-serif`;
     ctx.fillStyle = 'rgba(130, 170, 255, 0.4)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -397,7 +398,7 @@ function drawMap() {
         ctx.arc(xB, yB, 5 * devicePixelRatio * sizeMultiplier, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
-        ctx.font = `600 ${9 * devicePixelRatio}px "Inter", sans-serif`;
+        ctx.font = `600 ${9 * devicePixelRatio}px "InterVariable", "Inter", sans-serif`;
         ctx.fillStyle = color;
         ctx.fillText(label, xB, yB + 14 * devicePixelRatio);
     };

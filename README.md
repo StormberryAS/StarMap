@@ -5,10 +5,10 @@ Sovereign, privacy-first interactive night-sky viewer. StarMap renders a real-ti
 **Live:** [star.stormberry.as](https://star.stormberry.as)
 
 ## Features
-- **Offline-first**: embedded star catalogue, no server requests after initial load.
+- **No requests after the first load**: the star catalogue, `stars.json`, is a file on this site. The page loads it once when it opens, and after that it makes no server requests.
 - **Sovereign maths**: lightweight astronomy code converts Right Ascension and Declination to local Azimuth and Altitude.
 - **Real-time rendering**: HTML5 Canvas, stars up to a visible-magnitude limit.
-- **City search**: offline autocomplete over 25,007 cities, accent-insensitive both ways (`tromso` finds Tromsø) and exonym-aware (`Gothenburg` finds Göteborg).
+- **City search**: autocomplete in the browser over 25,007 cities, accent-insensitive both ways (`tromso` finds Tromsø) and exonym-aware (`Gothenburg` finds Göteborg).
 - **Typed coordinates**: any point on the globe. A decimal comma works as well as a point (`60,39` or `60.39`), and so does a typographic minus; anything out of range is refused with a message rather than drawn.
 - **Privacy first**: the page never asks for the device's location. A place comes from city search or from typed coordinates, and every calculation runs in the browser.
 

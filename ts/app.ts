@@ -170,6 +170,10 @@ async function loadData(): Promise<void> {
     const res = await fetch('stars.json');
     // stars.json is ours (fetch_stars.py writes it) and is read as it is, as before.
     const data: unknown = await res.json();
+    // The labels are drawn in Inter (Marcos, 6 November 2026: "Font should always be inter"). The
+    // map waits until the browser has that face, so its first frame is not drawn in a fallback
+    // font; if the face cannot load, the map is drawn anyway.
+    await document.fonts.load('600 10px "InterVariable"').catch(() => undefined);
     starsData = data as Star[];
     computeConstellations();
     drawMap();
@@ -482,8 +486,8 @@ function drawMap(): void {
     // Filter out stars below horizon
     if (alt < 0) continue;
 
-    // Stereographic projection: Zenith is center (Alt=90)
-    // Distance from center represents Zenith Distance (90 - alt)
+    // Stereographic projection: Zenith is centre (Alt=90)
+    // Distance from centre represents Zenith Distance (90 - alt)
     // Map bounds: 90 - 0 altitude fits into 'radius'
     const r = ((90 - alt) / 90) * radius;
 
@@ -501,13 +505,13 @@ function drawMap(): void {
     const size = Math.max(0.5, (6.5 - mag) * 0.8) * devicePixelRatio;
     const opacity = Math.max(0.1, 1.0 - (mag / 8.0));
 
-    // Colors roughly mimicking stellar classes if we wanted, but white/blue-ish works ok.
+    // Colours roughly mimicking stellar classes if we wanted, but white/blue-ish works ok.
     ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fill();
 
-    // Emphasize bright stars
+    // Emphasise bright stars
     if (mag < 1.5) {
       ctx.shadowBlur = 4 * devicePixelRatio;
       ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
@@ -520,7 +524,7 @@ function drawMap(): void {
   }
 
   // Draw constellation labels
-  ctx.font = `600 ${10 * devicePixelRatio}px "Inter", sans-serif`;
+  ctx.font = `600 ${10 * devicePixelRatio}px "InterVariable", "Inter", sans-serif`;
   ctx.fillStyle = 'rgba(130, 170, 255, 0.4)';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -553,7 +557,7 @@ function drawMap(): void {
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    ctx.font = `600 ${9 * devicePixelRatio}px "Inter", sans-serif`;
+    ctx.font = `600 ${9 * devicePixelRatio}px "InterVariable", "Inter", sans-serif`;
     ctx.fillStyle = color;
     ctx.fillText(label, xB, yB + 14 * devicePixelRatio);
   };

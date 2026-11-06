@@ -2,6 +2,9 @@
 // with the compiled astro-calc.js, with the clock fixed at 5 November 2026 22:00 in Oslo. The
 // expected values are what the JavaScript before the move to TypeScript (commit 33ccdfb) showed and
 // drew at that instant. A drawing is held by the sha256 of every canvas call from the clearRect on.
+// Since 6 November 2026 the labels name "InterVariable" before "Inter" (the font rule), so every
+// drawing hash changed with that name and nothing else: with the name taken out of the calls, the
+// new drawings give the old hashes.
 
 process.env.TZ = 'Europe/Oslo';
 
@@ -22,8 +25,10 @@ test('load: Oslo from the coordinate fields, its badge, now as the date, and the
     { hidden: false, text: 'Oslo, Norway' }, '59.9139', '10.7522', '2026-11-05T22:00', false, true,
   ]);
   assert.deepEqual([s.frame.calls, s.frame.stars, s.frame.labels.length], [17615, 4392, 32]);
-  assert.equal(s.frame.sha256, 'd520edd7a34ceffb93ee4848c19c9861ee1a99be515afd4c55d1c25534592f24');
+  assert.equal(s.frame.sha256, 'd828e72e60be6b6e58e85000798fc19b138e3ad90e5d61b6a8dcd39ac4ac0f67');
   assert.deepEqual([page.totals().fetched, page.totals().console], [['stars.json'], []]);
+  // The first drawing waited for Inter (the labels' face).
+  assert.deepEqual(page.totals().fontLoads, ['600 10px "InterVariable"']);
 });
 
 test('the city search: accents and exonyms, keys, the pointer, and a choice that redraws', async () => {
@@ -47,7 +52,7 @@ test('the city search: accents and exonyms, keys, the pointer, and a choice that
   page.clickRow(0);
   s = page.state();
   assert.deepEqual([s.badge.text, s.lat.value, s.lon.value], ['Tromsø, Norway', '69.6489', '18.9551']);
-  assert.equal(s.frame.sha256, '9c129b019be597574e9f6fcadec514f793b46d1fad4060cf95236860ea77770d');
+  assert.equal(s.frame.sha256, '450af0fd22932ff76f68b41482488552e73f24cae1084d13b31d9992aec59079');
   page.typeCity('Gothenburg');
   assert.deepEqual(page.state().dropdown.rows, ['0|Göteborg|Sweden||false']);
   assert.equal(page.key('Escape'), false);
@@ -69,7 +74,7 @@ test('typed coordinates: a decimal comma, a minus sign, a refused value and its 
   page.click('update-btn');
   let s = page.state();
   assert.deepEqual([s.echo, s.badge.text], [{ text: 'Using 60.39, 5.32', hidden: false }, 'Bergen, Norway']);
-  assert.equal(s.frame.sha256, '55c3daf9442e2626b8a353cf09f0c344741d4e2f06883b2756fc116bb457d96b');
+  assert.equal(s.frame.sha256, 'ce73d3607669a9aff2f66ba9471822f1fea64a325b88b620c1be38999c46df1f');
   page.typeCoord('lat', '95');
   page.click('update-btn');
   s = page.state();
@@ -80,7 +85,7 @@ test('typed coordinates: a decimal comma, a minus sign, a refused value and its 
   page.click('update-btn');
   s = page.state();
   assert.deepEqual([s.echo.text, s.badge.text, s.map.hidden, s.lat.invalid], ['Using -33.87, 151.21', 'Sydney, Australia', false, null]);
-  assert.equal(s.frame.sha256, 'd3abefb0bc458b07edddd83499c74ea725b5a71f29edb0c78109a47adaf7a39d');
+  assert.equal(s.frame.sha256, '4082000c1eaeb42d20f044395a608c8c8554b59a4c101ce10c92e417f211e3e0');
   page.typeCoord('lon', '181');
   page.click('update-btn');
   assert.equal(page.state().lon.error, 'Enter a longitude between -180 and 180, such as 5.32 or 5,32.');
@@ -97,7 +102,7 @@ test('Live View: refused on a bad field, then one drawing a frame, and off', asy
   assert.deepEqual(page.state().live, { classes: 'active', text: 'Live View: ON', pending: 1 });
   page.frame(NOW + 60000);
   assert.equal(page.state().date, '2026-11-05T22:01');
-  assert.equal(page.state().frame.sha256, 'fa91068b803294c2b25a79506cb209f8da63500576c682296155b85ea1053952');
+  assert.equal(page.state().frame.sha256, '21dad572d01debf9c29aa049e38cf8c82a9c8f0806c5e292beb4edec242da94e');
   page.click('live-btn');
   assert.deepEqual(page.state().live, { classes: '', text: 'Live View: OFF', pending: 0 });
 });
@@ -109,7 +114,7 @@ test('a date, the tooltip over a star, and the Sun and the Moon', async () => {
   page.setDate('2027-06-21T23:00');
   page.click('update-btn');
   const s = page.state();
-  assert.equal(s.frame.sha256, 'f819aab5f61dc34d81f03ccc66bbe1a0edc7b256c3dc3736912fd733582ac4a6');
+  assert.equal(s.frame.sha256, '5941ec50d3b510d990ce076717cd32e39da352628dea23c8e8c66b3819d98b34');
   assert.deepEqual(s.frame.labels.slice(-2), ['Eco', 'MOON']);
   page.hover(260, 10);
   assert.deepEqual(page.tooltip(), { hidden: true, text: '', left: '', top: '' });

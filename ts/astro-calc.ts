@@ -2,7 +2,7 @@
     comment but this one: the explanations are in the source. Edit the TypeScript, never the .js:
     the build refuses to overwrite a hand edit, and its check mode fails on one. */
 
-// Minimal, lightweight celestial math logic to calculate local altitude & azimuth from RA/Dec.
+// Minimal, lightweight celestial maths logic to calculate local altitude & azimuth from RA/Dec.
 // RA expected in hours. Dec expected in degrees.
 // Lat/Lon expected in degrees.
 //
@@ -43,7 +43,7 @@ export function getLocalSiderealTime(jd: number, lon: number): number {
 export function getAltAz(raHours: number, decDeg: number, latDeg: number, lstDeg: number): AltAz {
   const raDeg = raHours * 15.0;
   let haDeg = lstDeg - raDeg;
-  // Normalize HA to -180 to 180
+  // Normalise HA to -180 to 180
   haDeg = haDeg % 360.0;
   if (haDeg > 180.0) haDeg -= 360.0;
   if (haDeg < -180.0) haDeg += 360.0;
