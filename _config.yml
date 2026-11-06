@@ -27,6 +27,11 @@
 #
 # description.txt (6 November 2026) is the first written plan for the app, not part of the page.
 # No served file links to it or loads it, so it is excluded too.
+#
+# theme: null (6 November 2026): the repository sets no theme, so GitHub Pages used its default,
+# jekyll-theme-primer, and published the theme's own stylesheet as /assets/css/style.css, a file
+# nothing here links. No theme means that file is no longer published. No page changes.
+theme: null
 exclude:
   - DISCLAIMER.md
   - description.txt
