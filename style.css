@@ -253,9 +253,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert
 
 /* The pause tick box (WCAG 2.2.2): ticked, the slide stops and the row
    scrolls by hand. Plain CSS, no script. `all: revert` keeps the page's
-   own form styles off it. */
+   own form styles off it, and with them the page font, so the font is set
+   again after it: a form control would otherwise use the browser's own font. */
 .app-switcher-container input.switcher-pause {
   all: revert;
+  font-family: var(--font-sans);
   margin: 0 0.5rem 0.75rem 0;
   vertical-align: middle;
   accent-color: var(--accent-blue);
